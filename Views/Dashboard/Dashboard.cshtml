@@ -1,0 +1,36 @@
+﻿@*@page*@
+
+@model BookLoan.Views.Dashboard.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2>Book Loan Dashboard</h2>
+
+<h4>Welcome to the Book Loan Dashboard</h4>
+
+<br />
+
+<h5>Below are some useful administrative activities</h5>
+
+<br />
+
+<p>
+    <div style="width: 1000px; height: 200px; display:flex; flex-direction:row">
+        <div style="align-content:flex-start;">
+            <ul>
+                <li>
+                    <a asp-area="" asp-controller="Report" asp-action="LoanReport" title="On Loan Report">On Loan Report</a>
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage Users">Manage Users</a>
+                </li>
+            </ul>
+        </div>
+        @*<div style="align-content:flex-end;">
+                <img src=@Url.Content("~/images/logo2.png") alt="Library Logo" class="img-responsive" asp-append-version="true" />
+            </div>*@
+    </div>
+</p>

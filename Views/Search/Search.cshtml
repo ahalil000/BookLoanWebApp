@@ -1,0 +1,41 @@
+﻿@model BookLoan.Models.SearchBookViewModel
+@{
+    ViewData["Title"] = "Search Library Books";
+}
+<h1>Index</h1>
+
+<p>
+    Search for a Book
+</p>
+
+
+@*<p>
+        <a asp-page="Search">Search for a Book</a>
+    </p>*@
+
+
+@*<form>
+        <p>
+            <select asp-for="BookGenre" asp-items="Model.Genres">
+                <option value="">All</option>
+            </select>
+            Title: <input type="text" asp-for="SearchString" />
+            <input type="submit" value="Filter" />
+        </p>
+    </form>*@
+
+
+
+<form>
+    <p>
+        <select asp-for="BookGenre" asp-items="@Model.Genres">
+            <option value="">All</option>
+        </select>
+        Title: <input type="text" asp-for="SearchString" />
+        <input type="submit" value="Filter" />
+        @*<input type="submit" value="Save" class="btn btn-default" />*@
+
+    </p>
+</form>
+
+

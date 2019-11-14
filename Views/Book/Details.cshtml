@@ -1,0 +1,102 @@
+﻿@page
+@model BookLoan.Views.Book.DetailsModel
+
+@*@{
+    ViewData["Title"] = "Details";
+}*@
+
+<h2>Book Details</h2>
+
+<div>
+    @*<h4>BookViewModel</h4>*@
+    <hr />
+    <dl class="dl-horizontal" style="border-style:solid; border-width: 1px;">
+        <dt>
+            @Html.DisplayNameFor(model => model.BookViewModel.Title)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BookViewModel.Title)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BookViewModel.Author)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BookViewModel.Author)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BookViewModel.YearPublished)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BookViewModel.YearPublished)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BookViewModel.Genre)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BookViewModel.Genre)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BookViewModel.Edition)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BookViewModel.Edition)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BookViewModel.ISBN)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BookViewModel.ISBN)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BookViewModel.Location)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BookViewModel.Location)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.BookStatusViewModel.Status)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BookStatusViewModel.Status)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BookStatusViewModel.DateLoaned)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BookStatusViewModel.DateLoanedFormattedString)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BookStatusViewModel.DateDue)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BookStatusViewModel.DateDueFormattedString)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BookStatusViewModel.DateReturn)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BookStatusViewModel.DateReturnFormattedString)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-area="" asp-controller="Book" asp-action="Edit" asp-route-id="@Html.ValueFor(model => model.BookViewModel.ID)">Edit</a>
+    @if (@Html.ValueFor(model => model.BookStatusViewModel.Status) == "AVAILABLE")
+    {
+        <a asp-area="" asp-controller="Loan" asp-action="Create" asp-route-id="@Html.ValueFor(model => model.BookViewModel.ID)"> | Borrow Book</a>
+    }
+    @if (@Html.ValueFor(model => model.BookStatusViewModel.Status) == "ON LOAN")
+    {
+        <a asp-area="" asp-controller="Loan" asp-action="Return" asp-route-id="@Html.ValueFor(model => model.BookViewModel.ID)"> | Return Book</a>
+    }
+    @if (@Html.ValueFor(model => model.BookStatusViewModel.Status) == "OVERDUE")
+    {
+        <a asp-area="" asp-controller="Loan" asp-action="Return" asp-route-id="@Html.ValueFor(model => model.BookViewModel.ID)"> | Return Book</a>
+    }
+
+    <div class="form-group">
+        @*onclick="location.href='@Url.Action("Index", "Home")'"*@
+        <a asp-area="" asp-controller="Home" asp-action="Index">Back to Home</a>
+    </div>
+</div>

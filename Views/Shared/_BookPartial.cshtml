@@ -1,0 +1,22 @@
+@using Microsoft.AspNetCore.Identity
+@using BookLoan.Models
+@using BookLoan.Services;
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserRoleService UserRoleService
+
+@if (SignInManager.IsSignedIn(User))
+{
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <a asp-area="" asp-controller="Search" asp-action="Search" title="Search Catalog">Search Catalog</a>
+            </li>
+            @if (await UserRoleService.IsUserInRole(User.Identity.Name, "Admin"))
+            {
+                <li>
+                <a asp-area="" asp-controller="Dashboard" asp-action="Dashboard" title="Dashboard">Dashboard</a>
+                </li>
+            }
+        </ul>
+}

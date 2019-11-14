@@ -1,0 +1,60 @@
+﻿@page
+@model BookLoan.Views.Loan.DetailsModel
+
+@*@{
+    ViewData["Title"] = "Details";
+}*@
+
+<h2>Loan Details</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.LoanViewModel.LoanedBy)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LoanViewModel.LoanedBy)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LoanViewModel.DateLoaned)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LoanViewModel.DateLoaned)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LoanViewModel.DateDue)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LoanViewModel.DateDue)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LoanViewModel.DateReturn)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LoanViewModel.DateReturn)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LoanViewModel.OnShelf)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LoanViewModel.OnShelf)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LoanViewModel.Book.Title)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LoanViewModel.Book.Title)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LoanViewModel.Book.Author)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LoanViewModel.Book.Author)
+        </dd>
+    </dl>
+</div>
+<div>
+    @*<a asp-area="" asp-controller="Loan" asp-action="Edit" asp-route-id="@Html.ValueFor(model => model.LoanViewModel.ID)">Edit</a> |*@
+    <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+</div>

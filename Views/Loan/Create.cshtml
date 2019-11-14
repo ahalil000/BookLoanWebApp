@@ -1,0 +1,64 @@
+﻿@*@page*@
+
+@model BookLoan.Views.Loan.CreateModel
+
+@*@{
+    ViewData["Title"] = "New Book Loan";
+}*@
+
+<h2>New Book Loan</h2>
+
+@*<h4>LoanViewModel</h4>*@
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="LoanViewModel.BookID" />
+            <input type="hidden" asp-for="LoanViewModel.DateCreated" />
+
+            <div class="form-group">
+                <label asp-for="LoanViewModel.LoanedBy" class="control-label"></label>
+                <input asp-for="LoanViewModel.LoanedBy" class="form-control" />
+                <span asp-validation-for="LoanViewModel.LoanedBy" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LoanViewModel.DateLoaned" class="control-label"></label>
+                <input asp-for="LoanViewModel.DateLoaned" class="form-control" />
+                <span asp-validation-for="LoanViewModel.DateLoaned" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LoanViewModel.DateDue" class="control-label"></label>
+                <input asp-for="LoanViewModel.DateDue" class="form-control" />
+                <span asp-validation-for="LoanViewModel.DateDue" class="text-danger"></span>
+            </div>
+            @*<div class="form-group">
+                <label asp-for="LoanViewModel.DateReturn" class="control-label"></label>
+                <input asp-for="LoanViewModel.DateReturn" class="form-control" />
+                <span asp-validation-for="LoanViewModel.DateReturn" class="text-danger"></span>
+            </div>*@
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input asp-for="LoanViewModel.OnShelf" />
+                        @Html.DisplayNameFor(model => model.LoanViewModel.OnShelf)
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+            <div class="form-group">
+                <input type="button" value="Cancel" class="btn btn-default" onclick="location.href='@Url.Action("Index","Home")'" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    @*<a asp-page="Index">Back to List</a>*@
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
