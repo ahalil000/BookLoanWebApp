@@ -18,10 +18,12 @@ namespace BookLoan.Controllers
     {
         ApplicationDbContext _db;
         ILoanService _loanservice;
+        IBookService _bookService;
 
-        public BookController(ApplicationDbContext db, ILoanService loanService)
+        public BookController(ApplicationDbContext db, IBookService bookService, ILoanService loanService)
         {
             _db = db;
+            _bookService = bookService;
             _loanservice = loanService;
         }
 
@@ -104,8 +106,9 @@ namespace BookLoan.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    _db.Add(book);
-                    await _db.SaveChangesAsync();
+                    await _bookService.SaveBook(book);
+                    //_db.Add(book);
+                    //await _db.SaveChangesAsync();
                     return RedirectToAction("Details", "Book", new { id = book.ID });
                 }
                 ViewData["BookID"] = new SelectList(_db.Books, "ID", "Author", book.ID);
@@ -123,20 +126,20 @@ namespace BookLoan.Controllers
             if (id == 0)
             {
                 return null;
-
             }
             BookViewModel bvm = new BookViewModel();
-            var book = await _db.Books.Where(a => a.ID == id).SingleOrDefaultAsync();
-            if (book != null)
+            bvm = await _bookService.GetBook(id);
+            //var book = await _db.Books.Where(a => a.ID == id).SingleOrDefaultAsync();
+            if (bvm != null)
             {
-                bvm.ID = book.ID;
-                bvm.Title = book.Title;
-                bvm.Author = book.Author;
-                bvm.Genre = book.Genre;
-                bvm.Location = book.Location;
-                bvm.YearPublished = book.YearPublished;
-                bvm.Edition = book.Edition;
-                bvm.ISBN = book.ISBN;
+                //bvm.ID = book.ID;
+                //bvm.Title = book.Title;
+                //bvm.Author = book.Author;
+                //bvm.Genre = book.Genre;
+                //bvm.Location = book.Location;
+                //bvm.YearPublished = book.YearPublished;
+                //bvm.Edition = book.Edition;
+                //bvm.ISBN = book.ISBN;
                 bvm.DateUpdated = DateTime.Now;
             }
             BookLoan.Views.Book.EditModel editModel = new EditModel(_db);
@@ -162,21 +165,36 @@ namespace BookLoan.Controllers
                 string sISBN = collection["BookViewModel.ISBN"].ToString();
                 string sLocation = collection["BookViewModel.Location"].ToString();
 
-                BookViewModel book = await _db.Books.Where(a => a.ID == Id).SingleOrDefaultAsync();
-                if (book != null)
+                BookViewModel updatedata = new BookViewModel()
                 {
-                    book.Title = sTitle;
-                    book.Author = sAuthor;
-                    book.Edition = sEdition;
-                    book.Genre = sGenre;
-                    book.ISBN = sISBN;
-                    book.Location = sLocation;
-                    book.YearPublished = iYearPublished;
-                    book.DateUpdated = DateTime.Now;
-                    _db.Update(book);
-                    await _db.SaveChangesAsync();
-                    return RedirectToAction("Details", "Book", new { id = book.ID });
-                }
+                    Title = sTitle,
+                    Author = sAuthor,
+                    Edition = sEdition,
+                    Genre = sGenre,
+                    ISBN = sISBN,
+                    Location = sLocation,
+                    YearPublished = iYearPublished,
+                    DateUpdated = DateTime.Now
+                };
+
+                BookViewModel updated = await _bookService.UpdateBook(id, updatedata);
+                //BookViewModel book = await _db.Books.Where(a => a.ID == Id).SingleOrDefaultAsync();
+                //if (book != null)
+                //{
+                //    book.Title = sTitle;
+                //    book.Author = sAuthor;
+                //    book.Edition = sEdition;
+                //    book.Genre = sGenre;
+                //    book.ISBN = sISBN;
+                //    book.Location = sLocation;
+                //    book.YearPublished = iYearPublished;
+                //    book.DateUpdated = DateTime.Now;
+                //    _db.Update(book);
+                //    await _db.SaveChangesAsync();
+                //    return RedirectToAction("Details", "Book", new { id = book.ID });
+                //}
+                if (updated != null)
+                    return RedirectToAction("Details", "Book", new { id = updated.ID });
 
                 return RedirectToAction("Index", "Home");
             }

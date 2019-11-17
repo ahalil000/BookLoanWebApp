@@ -6,43 +6,45 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using BookLoan.Models;
 using BookLoan.Data;
+using BookLoan.Services;
 
 namespace BookLoan.Controllers
 {
     public class SearchController : Controller
     {
         ApplicationDbContext _db;
+        IBookService _bookService;
 
-
-        public SearchController(ApplicationDbContext db)
+        public SearchController(ApplicationDbContext db, IBookService bookService)
         {
             _db = db;
+            _bookService = bookService;
         }
 
         [HttpGet]
-        public ActionResult Search(string BookGenre, string SearchString)
+        public async Task<ActionResult> Search(string BookGenre, string SearchString)
         {
             SearchBookViewModel sm = new SearchBookViewModel();
 
             if (String.IsNullOrEmpty(SearchString))
             {
                 //sm.Book = new List<BookViewModel>();
-                sm.Book = _db.Books.ToList();
+                sm.Book = await _bookService.GetBooks(); // _db.Books.ToList();
                 return View("SearchResult", sm);
             }
             if (!String.IsNullOrEmpty(SearchString))
-                sm.Book = _db.Books.Where(a => a.Title.Contains(SearchString)).ToList();
+                sm.Book = await _bookService.GetBooksFilter(SearchString); // _db.Books.Where(a => a.Title.Contains(SearchString)).ToList();
 
             return View("SearchResult", sm);
             //return RedirectToAction("/SearchBook/Search");
         }
 
         [HttpPost]
-        public ActionResult Search(SearchBookViewModel svm)
+        public async Task<ActionResult> Search(SearchBookViewModel svm)
         {
             SearchBookViewModel sm = new SearchBookViewModel();
 
-            sm.Book = _db.Books.Where(a => a.Title.Contains(svm.SearchString)).ToList();
+            sm.Book = await _bookService.GetBooksFilter(svm.SearchString); // _db.Books.Where(a => a.Title.Contains(svm.SearchString)).ToList();
             return View(sm);
             //return RedirectToAction("/SearchBook/Search");
         }

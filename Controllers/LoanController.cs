@@ -8,16 +8,23 @@ using Microsoft.EntityFrameworkCore;
 using BookLoan.Data;
 using BookLoan.Models;
 using BookLoan.Views.Loan;
+using BookLoan.Services;
 
 namespace BookLoan.Controllers
 {
     public class LoanController : Controller
     {
         private readonly ApplicationDbContext _context;
+        ILoanService _loanService;
+        IBookService _bookService;
 
-        public LoanController(ApplicationDbContext context)
+        public LoanController(ApplicationDbContext context, 
+            IBookService bookService, 
+            ILoanService loanService)
         {
             _context = context;
+            _bookService = bookService;
+            _loanService = loanService;
         }
 
         // GET: LoanViewModels
@@ -35,16 +42,24 @@ namespace BookLoan.Controllers
                 return NotFound();
             }
 
-            var loanViewModel = await _context.Loans
-                .Include(l => l.Book)
-                .SingleOrDefaultAsync(m => m.ID == id);
-            if (loanViewModel == null)
+            LoanViewModel lvm = new LoanViewModel();
+            lvm = await _loanService.GetLoan((int)id);
+
+            if (lvm == null)
             {
                 return NotFound();
             }
 
+            //var loanViewModel = await _context.Loans
+            //    .Include(l => l.Book)
+            //    .SingleOrDefaultAsync(m => m.ID == id);
+            //if (loanViewModel == null)
+            //{
+            //    return NotFound();
+            //}
+
             BookLoan.Views.Loan.DetailsModel detailsModel = new DetailsModel(_context);
-            detailsModel.LoanViewModel = loanViewModel;
+            detailsModel.LoanViewModel = lvm; // loanViewModel;
 
             return View(detailsModel);
         }
@@ -54,14 +69,8 @@ namespace BookLoan.Controllers
         public async Task<IActionResult> Create(int id)
         {
             //ViewData["BookID"] = new SelectList(_context.Books, "ID", "Author");
-            LoanViewModel lvm = new LoanViewModel();
-            lvm.DateLoaned = DateTime.Now;
-            lvm.DateReturn = DateTime.Now;
-            lvm.DateCreated = DateTime.Now;
-            lvm.DateDue = DateTime.Now;
-            lvm.OnShelf = true;
+            LoanViewModel lvm = _loanService.CreateNewBookLoan(id);
             lvm.LoanedBy = User.Identity.Name;
-            lvm.BookID = id;
             BookLoan.Views.Loan.CreateModel createModel = new CreateModel(_context);
             createModel.LoanViewModel = lvm;
             return View(createModel);
@@ -70,39 +79,43 @@ namespace BookLoan.Controllers
         // GET: LoanViewModels/Return
         public async Task<IActionResult> Return(int id)
         {
-            LoanViewModel lvm = new LoanViewModel();
-            BookViewModel bvm = new BookViewModel();
+            //LoanViewModel lvm = new LoanViewModel();
+            //BookViewModel bvm = new BookViewModel();
 
-            var book = await _context.Books
-                .SingleOrDefaultAsync(m => m.ID == id);
+            LoanViewModel lvm;
+            BookViewModel bvm;
 
-            if (book == null)
-            {
-                return NotFound();
-            }
+            (lvm, bvm) = await _loanService.GetReturnLoan(id);
 
-            var loan = await _context.Loans
-                .Where(m => m.BookID == book.ID).ToListAsync();
+            //var book = await _bookService.GetBook(id);
 
-            if (loan == null)
-            {
-                return NotFound();
-            }
+            //if (book == null)
+            //{
+            //    return NotFound();
+            //}
 
-            foreach (LoanViewModel item in loan.OrderByDescending(o => o.DateReturn))
-            {
-                lvm.ID = item.ID;
-                lvm.DateLoaned = item.DateLoaned;
-                lvm.DateDue = item.DateDue;
-                lvm.DateReturn = DateTime.Now;
-                lvm.DateUpdated = DateTime.Now;
-                lvm.OnShelf = false;
-                lvm.LoanedBy = "";
-                lvm.BookID = item.BookID;
-                bvm.Title = book.Title;
-                bvm.Author = book.Author;
-                break;
-            }
+            //var bookloans = await _loanService.GetBookLoans(id);
+
+            //if (bookloans == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //// Get latest loan for the book. 
+            //foreach (LoanViewModel item in bookloans.OrderByDescending(o => o.DateReturn))
+            //{
+            //    lvm.ID = item.ID;
+            //    lvm.DateLoaned = item.DateLoaned;
+            //    lvm.DateDue = item.DateDue;
+            //    lvm.DateReturn = DateTime.Now;
+            //    lvm.DateUpdated = DateTime.Now;
+            //    lvm.OnShelf = false;
+            //    lvm.LoanedBy = "";
+            //    lvm.BookID = item.BookID;
+            //    bvm.Title = book.Title;
+            //    bvm.Author = book.Author;
+            //    break;
+            //}
 
             BookLoan.Views.Loan.ReturnModel returnModel = new ReturnModel(_context);
             returnModel.LoanViewModel = lvm;
@@ -122,8 +135,9 @@ namespace BookLoan.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(loanViewModel);
-                await _context.SaveChangesAsync();
+                await _loanService.SaveLoan(loanViewModel);
+                //_context.Add(loanViewModel);
+                //await _context.SaveChangesAsync();
                 return RedirectToAction("Details", "Loan", new { id = loanViewModel.ID });
             }
             ViewData["BookID"] = new SelectList(_context.Books, "ID", "Author", loanViewModel.BookID);
@@ -142,12 +156,14 @@ namespace BookLoan.Controllers
             {
                 try
                 {
-                    _context.Update(loanViewModel);
-                    await _context.SaveChangesAsync();
+                    await _loanService.ReturnLoan(loanViewModel);
+                    //_context.Update(loanViewModel);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LoanViewModelExists(loanViewModel.ID))
+                    //if (!LoanViewModelExists(loanViewModel.ID))
+                    if (await _loanService.GetLoan(loanViewModel.ID) == null) 
                     {
                         return NotFound();
                     }
@@ -172,7 +188,8 @@ namespace BookLoan.Controllers
                 return NotFound();
             }
 
-            var loanViewModel = await _context.Loans.SingleOrDefaultAsync(m => m.ID == id);
+            var loanViewModel = await _loanService.GetLoan((int)id);
+            //var loanViewModel = await _context.Loans.SingleOrDefaultAsync(m => m.ID == id);
             if (loanViewModel == null)
             {
                 return NotFound();
@@ -197,12 +214,14 @@ namespace BookLoan.Controllers
             {
                 try
                 {
-                    _context.Update(loanViewModel);
-                    await _context.SaveChangesAsync();
+                    await _loanService.UpdateLoan(loanViewModel);
+                    //_context.Update(loanViewModel);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LoanViewModelExists(loanViewModel.ID))
+                    //if (!LoanViewModelExists(loanViewModel.ID))
+                    if (await _loanService.GetLoan(loanViewModel.ID) == null)
                     {
                         return NotFound();
                     }
