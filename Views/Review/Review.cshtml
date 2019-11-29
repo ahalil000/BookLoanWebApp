@@ -1,0 +1,78 @@
+﻿
+@model BookLoan.Models.ReviewViewModel;
+
+@*@model BookLoan.Views.Review.ReviewModel;*@
+
+@*@page
+    @{
+        ViewData["Title"] = "Review";
+    }*@
+
+<h2>Book Review</h2>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+
+        <form method="post">
+
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <label asp-for="Title" class="form-control">@Html.DisplayFor(model => model.Title)</label>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Author" class="control-label"></label>
+                <label asp-for="Author" class="form-control">@Html.DisplayFor(model => model.Author)</label>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Reviewer" class="control-label"></label>
+                <label asp-for="Reviewer" class="form-control">@Html.DisplayFor(model => model.Reviewer)</label>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Heading" class="control-label"></label>
+                <input asp-for="Heading" class="form-control" />
+                <span asp-validation-for="Heading" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Comment" class="control-label"></label>
+                @*<input asp-for="Comment" class="form-control" />*@
+                <textarea asp-validation-for="Comment" class="form-control" name="Comment"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Rating" class="control-label"></label>
+                <input asp-for="Rating" class="custom-range" min="1" max="5" />
+            </div>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="BookID" />
+            <input type="hidden" asp-for="Title" />
+            <input type="hidden" asp-for="Author" />
+            <input type="hidden" asp-for="Reviewer" />
+            <input type="hidden" asp-for="Heading" />
+            <input type="hidden" asp-for="Comment" />
+            <input type="hidden" asp-for="Rating" />
+            <input type="hidden" asp-for="Reviewer" />
+            <input type="hidden" asp-for="DateReviewed" />
+
+            <div class="form-group">
+                <input type="submit" value="Submit" class="btn btn-default" />
+            </div>
+            <div class="form-group">
+                <input type="button" value="Cancel" class="btn btn-default" onclick="location.href='@Url.Action("Index","Home")'" />
+            </div>
+
+            @*<input type="hidden" asp-for="ReviewViewModel.DateCreated" />
+        <input type="hidden" asp-for="ReviewViewModel.DateUpdated" />
+        <input type="hidden" asp-for="ReviewViewModel.DateReviewed" />*@
+        </form>
+    </div>
+</div>
+
+<div>
+    @*<a asp-page="Index">Back to List</a>*@
+</div>

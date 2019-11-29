@@ -1,0 +1,55 @@
+﻿@model BookLoan.Models.ManageUserViewModels.UserRoleConfirmAction
+
+<h2>Remove User Role</h2>
+
+<p>
+    <a asp-page="/DeleteRole"></a>
+</p>
+
+
+<h3>Are you sure you want to remove this role?</h3>
+<div>
+    <input type="hidden" asp-for="@Model.UserID" />
+
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.LoginName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LoginName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SelectedRole)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SelectedRole)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Action)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Action)
+        </dd>
+    </dl>
+
+    <form method="post">
+        <input type="hidden" asp-for="UserID" />
+        <input type="hidden" asp-for="LoginName" />
+        <input type="hidden" asp-for="SelectedRole" />
+        <input type="hidden" asp-for="Action" />
+        <input type="submit" value="Confirm" class="btn btn-default" />
+        @*<a asp-page="./Index">Back to List</a>*@
+    </form>
+</div>
+
+
+<div>
+    @*<a asp-area="" asp-controller="ManageUser" asp-action="UpdateRole" asp-route-id="@Html.ValueFor(model => model.UserID)"> | Update User Role</a>*@
+    <div class="form-group">
+        <a asp-area="" asp-controller="Home" asp-action="Index">Back to Home</a>
+    </div>
+</div>
+
+
+

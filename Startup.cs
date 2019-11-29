@@ -10,9 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using BookLoan.Domain;
 using System.Threading.Tasks;
-
 using Microsoft.Extensions.Options;
-
+using Microsoft.AspNetCore.Http;
 
 namespace BookLoan
 {
@@ -73,11 +72,14 @@ namespace BookLoan
             services.AddTransient<ILoanService, LoanService>();
             services.AddTransient<IReportService, ReportService>();
             services.AddTransient<IBookService, BookService>();
+            services.AddTransient<IReviewService, ReviewService>();
             services.AddTransient<IUserRoleService, UserRoleService>();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddMvc();
 
-            services.AddOptions();
+            //services.AddOptions();
             services.Configure<AppConfiguration>(Configuration.GetSection("AppSettings"));
         }
 

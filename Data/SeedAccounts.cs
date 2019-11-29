@@ -87,7 +87,6 @@ namespace BookLoan.Data
                                 UserId = adminUser.Result.Id.ToString()
                             });
                             await db.SaveChangesAsync();
-                            //userManager.AddToRoleAsync(user, "ADMIN");
                         }
                     }
                 }

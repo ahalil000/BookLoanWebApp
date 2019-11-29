@@ -6,9 +6,11 @@ using System.Security.Claims;
 using BookLoan.Data;
 using BookLoan.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using BookLoan.Models;
 using BookLoan.Services;
-
+using Microsoft.AspNetCore.Http;
 
 namespace BookLoan.Services
 {
@@ -16,11 +18,21 @@ namespace BookLoan.Services
     {
         ApplicationDbContext _db;
         IBookService _bookService;
-        
-        public LoanService(ApplicationDbContext db, IBookService bookService)
+        IReviewService _reviewService;
+        UserManager<ApplicationUser> _userManager;
+        HttpContext _context;
+
+        public LoanService(ApplicationDbContext db, 
+                UserManager<ApplicationUser> userManager, 
+                IHttpContextAccessor httpContextAccessor,               
+                IBookService bookService,
+                IReviewService reviewService)
         {
             _db = db;
+            _userManager = userManager;
+            _context = httpContextAccessor.HttpContext;
             _bookService = bookService;
+            _reviewService = reviewService;
         }
 
         /// <summary>
@@ -131,7 +143,7 @@ namespace BookLoan.Services
             }
 
             // Get latest loan for the book. 
-            foreach (LoanViewModel item in bookloans.OrderByDescending(o => o.DateReturn))
+            foreach (LoanViewModel item in bookloans.OrderByDescending(o => o.DateLoaned))
             {
                 lvm.ID = item.ID;
                 lvm.DateLoaned = item.DateLoaned;
@@ -165,6 +177,7 @@ namespace BookLoan.Services
             {
                 bool foundState = false;
 
+                bsvm.Borrower = rec.LoanedBy;
                 bsvm.DateLoaned = rec.DateLoaned;
                 bsvm.DateReturn = rec.DateReturn;
                 bsvm.DateDue = rec.DateDue;
@@ -190,6 +203,84 @@ namespace BookLoan.Services
                     break;
             }
             return bsvm;
+        }
+
+
+        /// <summary>
+        /// GetBooksLoanedByCurrentUser()
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        public async Task<List<BookLoan.Models.ReportViewModels.LoanedBookReportViewModel>> GetBooksLoanedByCurrentUser()
+        {
+            var user = await _userManager.GetUserAsync(_context.User);
+            string curruser = user.UserName;
+
+            var bookloans = new Dictionary<int, BookLoan.Models.ReportViewModels.LoanedBookReportViewModel>();
+
+            var userloans = await _db.Loans
+                .Include(l => l.Book)
+                .Where(m => m.LoanedBy == curruser).ToListAsync();
+            foreach (BookLoan.Models.LoanViewModel itm in userloans)
+            {
+
+                if (!bookloans.ContainsKey(itm.BookID))
+                {
+                    bookloans.Add(
+                        itm.BookID,
+                        new Models.ReportViewModels.LoanedBookReportViewModel()
+                        {
+                            Author = itm.Book.Author,
+                            Title = itm.Book.Title,
+                            Genre = itm.Book.Genre,
+                            YearPublished = itm.Book.YearPublished,
+                            BookID = itm.BookID,
+                            LastDateLoaned = itm.DateLoaned,
+                            ID = itm.ID,
+                            WasBookReviewed = await _reviewService.WasBookReviewedByUser(itm.BookID, curruser),
+                            Rating = await _reviewService.GetReviewerBookStarRating(itm.BookID, curruser)
+                        }
+                    );
+                }
+                else
+                {
+                    if (itm.DateLoaned > bookloans[itm.BookID].LastDateLoaned)
+                        bookloans[itm.BookID].LastDateLoaned = itm.DateLoaned;
+                }
+            }
+            return bookloans.Values.ToList();
+        }
+
+
+        /// <summary>
+        /// GetLoanForReview()
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<BookLoan.Models.ReviewViewModel> GetLoanForReview(int id)
+        {
+            var user = await _userManager.GetUserAsync(_context.User);
+            string curruser = user.UserName;
+
+            var userloan = await _db.Loans
+                .Include(l => l.Book)
+                .Where(m => m.ID == id).SingleOrDefaultAsync();
+            if (userloan != null)
+            {
+                return new Models.ReviewViewModel()
+                {
+                    Author = userloan.Book.Author,
+                    Title = userloan.Book.Title,
+                    BookID = userloan.BookID,
+                    ID = userloan.ID,
+                    Reviewer = curruser,
+                    DateReviewed = DateTime.Now,
+                    Comment = "",
+                    Heading = "",
+                    Rating = 0
+                };
+            }
+            return null;
         }
 
     }

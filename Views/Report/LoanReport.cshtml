@@ -20,6 +20,9 @@
                 @Html.DisplayNameFor(model => model[0].Author)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model[0].Borrower)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model[0].DateLoaned)
             </th>
             <th>
@@ -32,8 +35,8 @@
                 @Html.DisplayNameFor(model => model[0].Location)
             </th>
             @*<th>
-                @Html.DisplayNameFor(model => model[0].OnShelf)
-            </th>*@
+            @Html.DisplayNameFor(model => model[0].OnShelf)
+        </th>*@
             <th>
                 @Html.DisplayNameFor(model => model[0].Status)
             </th>
@@ -50,6 +53,9 @@
                 @Html.DisplayFor(modelItem => item.Author)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Borrower)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.DateLoanedFormattedString)
             </td>
             <td>
@@ -62,8 +68,8 @@
                 @Html.DisplayFor(modelItem => item.Location)
             </td>
             @*<td>
-                @Html.DisplayFor(modelItem => item.OnShelf)
-            </td>*@
+            @Html.DisplayFor(modelItem => item.OnShelf)
+        </td>*@
             <td>
                 @Html.DisplayFor(modelItem => item.Status)
             </td>

@@ -16,6 +16,8 @@ namespace BookLoan.Models
 
         public DateTime DateReturn { get; set; }
 
+        public string Borrower { get; set; }
+
         public bool OnShelf { get; set; }
 
         public string DateLoanedFormattedString

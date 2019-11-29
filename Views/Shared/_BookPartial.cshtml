@@ -12,11 +12,11 @@
             <li>
                 <a asp-area="" asp-controller="Search" asp-action="Search" title="Search Catalog">Search Catalog</a>
             </li>
-            @if (await UserRoleService.IsUserInRole(User.Identity.Name, "Admin"))
-            {
+            @*@if (await UserRoleService.IsUserInRole(User.Identity.Name, "Admin"))
+            {*@
                 <li>
                 <a asp-area="" asp-controller="Dashboard" asp-action="Dashboard" title="Dashboard">Dashboard</a>
                 </li>
-            }
+            @*}*@
         </ul>
 }

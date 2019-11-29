@@ -15,12 +15,36 @@ namespace BookLoan.Services
         private ApplicationDbContext db;
         private UserManager<ApplicationUser> userManager;
 
-        public UserRoleService(ApplicationDbContext _db, UserManager<ApplicationUser> _userManager)
+        public UserRoleService(ApplicationDbContext _db, 
+            UserManager<ApplicationUser> _userManager)
         {
             db = _db;
             userManager = _userManager;
         }
 
+
+        /// <summary>
+        /// GetUserRoles()
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public async Task<List<ApplicationUser>> GetUsers()
+        {
+            List<ApplicationUser> users = new List<ApplicationUser>();
+            userManager.Users.Where(u => u.UserName != "Admin").ToList().ForEach(async u =>
+            {
+                if (await IsUserInRole(u.UserName, "Admin") == false)
+                    users.Add(u);
+            });
+            return users;
+        }
+
+
+        /// <summary>
+        /// GetUserRoles()
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <returns></returns>
         public async Task<List<string>> GetUserRoles(string userName)
         {
             var user = await userManager.FindByEmailAsync(userName);
@@ -30,6 +54,67 @@ namespace BookLoan.Services
             return new List<string>();
         }
 
+
+        /// <summary>
+        /// GetUserRoleDetails
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public async Task<BookLoan.Models.ManageUserViewModels.UserRoleViewModel> GetUserRoleDetails(string userName)
+        {
+            var roleManager = new RoleStore<IdentityRole>(db);
+            var user = await userManager.FindByNameAsync(userName);
+            var userRoles = await userManager.GetRolesAsync(user);
+            var allRoles = roleManager.Roles.ToList();
+            List<string> stringRoles = new List<string>();
+            foreach (IdentityRole item in allRoles)
+            {
+                stringRoles.Add(item.Name);
+            }
+            return new Models.ManageUserViewModels.UserRoleViewModel()
+            {
+                DisplayName = user.UserName,
+                LoginName = user.Email,
+                UserID = user.Id,
+                UserRoles = userRoles.ToList(),
+                AvailableRoles = stringRoles
+            };
+        }
+
+
+        /// <summary>
+        /// GetUserRoleDetailsById
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<BookLoan.Models.ManageUserViewModels.UserRoleViewModel> GetUserRoleDetailsById(string userId)
+        {
+            var roleManager = new RoleStore<IdentityRole>(db);
+            var user = await userManager.FindByIdAsync(userId);
+            var userRoles = await userManager.GetRolesAsync(user);
+            var allRoles = roleManager.Roles.ToList();
+            List<string> stringRoles = new List<string>();
+            foreach (IdentityRole item in allRoles)
+            {
+                stringRoles.Add(item.Name);
+            }
+            return new Models.ManageUserViewModels.UserRoleViewModel()
+            {
+                DisplayName = user.UserName,
+                LoginName = user.Email,
+                UserID = user.Id,
+                UserRoles = userRoles.ToList(),
+                AvailableRoles = stringRoles
+            };
+        }
+
+
+        /// <summary>
+        /// IsUserInRole()
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
         public async Task<bool> IsUserInRole(string userName, string role)
         {
             var user = await userManager.FindByEmailAsync(userName);
@@ -37,14 +122,59 @@ namespace BookLoan.Services
             return isInRole;
         }
 
+
+        /// <summary>
+        /// AddUserToRole()
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
         public async Task AddUserToRole(string userName, string role)
         {
+            var roleManager = new RoleStore<IdentityRole>(db);
             var user = await userManager.FindByEmailAsync(userName);
-            bool isInRole = await userManager.IsInRoleAsync(user, role);
+            bool isInRole = await this.IsUserInRole(userName, role); // await userManager.IsInRoleAsync(user, role);
             if (!isInRole)
             {
-                await userManager.AddToRoleAsync(user, role.ToUpper());
+                if ((role == "Member") || (role == "Manager"))
+                {
+                    var memberRole = roleManager.FindByNameAsync(role);
+                    var memberUser = userManager.FindByEmailAsync(userName);
+                    if (memberRole != null && memberUser != null)
+                    {
+                        db.UserRoles.Add(new IdentityUserRole<string>()
+                        {
+                            RoleId = memberRole.Result.Id.ToString(),
+                            UserId = memberUser.Result.Id.ToString()
+                        });
+                        await db.SaveChangesAsync();
+                    }
+                }
+                //await userManager.AddToRoleAsync(user, role.ToUpper());
             }
         }
+
+
+        /// <summary>
+        /// GetUserRoleAction
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="action"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        public async Task<BookLoan.Models.ManageUserViewModels.UserRoleConfirmAction> GetUserRoleAction(string userId, string action, string role)
+        {
+            var roleManager = new RoleStore<IdentityRole>(db);
+            var user = await userManager.FindByIdAsync(userId);
+            return new Models.ManageUserViewModels.UserRoleConfirmAction()
+            {
+                Action = action,
+                SelectedRole = role,
+                LoginName = user.Email,
+                UserID = user.Id
+            };
+        }
+
+
     }
 }

@@ -4,17 +4,21 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using BookLoan.Models;
 
-namespace BookLoan.Views.Dashboard
+namespace BookLoan.Views.Review
 {
-    public class DashboardModel : PageModel
+    public class ReviewModel : PageModel
     {
         private readonly BookLoan.Data.ApplicationDbContext _context;
 
-        public DashboardModel(BookLoan.Data.ApplicationDbContext context)
+        public ReviewModel(BookLoan.Data.ApplicationDbContext context)
         {
             _context = context;
         }
+
+        [BindProperty]
+        public BookLoan.Models.ReviewViewModel ReviewViewModel { get; set; }
 
         public void OnGet()
         {

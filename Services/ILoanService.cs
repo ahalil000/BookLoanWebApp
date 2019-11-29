@@ -13,6 +13,8 @@ namespace BookLoan.Services
         Task<BookLoan.Models.BookStatusViewModel> GetBookLoanStatus(int bookid);
         Task<LoanViewModel> GetLoan(int id);
         Task<List<LoanViewModel>> GetBookLoans(int bookid);
+        Task<List<BookLoan.Models.ReportViewModels.LoanedBookReportViewModel>> GetBooksLoanedByCurrentUser();
+        Task<BookLoan.Models.ReviewViewModel> GetLoanForReview(int id);
         Task SaveLoan(LoanViewModel vm);
         Task ReturnLoan(LoanViewModel vm);
         Task UpdateLoan(LoanViewModel vm);

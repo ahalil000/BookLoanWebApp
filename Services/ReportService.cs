@@ -6,6 +6,11 @@ using BookLoan.Data;
 using BookLoan.Domain;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
+using BookLoan.Models;
+
+
 namespace BookLoan.Services
 {
     public class ReportService: IReportService
@@ -13,15 +18,29 @@ namespace BookLoan.Services
         ApplicationDbContext _db;
         ILoanService _loanService;
         IBookService _bookService;
+        UserManager<ApplicationUser> _userManager;
+        HttpContext _context;
 
-        public ReportService(ApplicationDbContext db, IBookService bookService, ILoanService loanService)
+        public ReportService(ApplicationDbContext db,
+            UserManager<ApplicationUser> userManager,
+            IHttpContextAccessor httpContextAccessor,
+            IBookService bookService, 
+            ILoanService loanService)
         {
             _db = db;
             _bookService = bookService;
             _loanService = loanService;
+            _context = httpContextAccessor.HttpContext;
         }
 
-        public async Task<List<BookLoan.Models.BookStatusViewModel>> OnLoanReport()
+        public async Task<List<BookLoan.Models.BookStatusViewModel>> MyOnLoanReport()
+        {
+            //var user = await _userManager.GetUserAsync(_context.User);
+            string curruser = _context.User.Identity.Name; // user.UserName;
+            return await OnLoanReport(curruser);
+        }
+
+        public async Task<List<BookLoan.Models.BookStatusViewModel>> OnLoanReport(string currentuser = null)
         {
             List<BookLoan.Models.BookStatusViewModel> loanstats = new List<Models.BookStatusViewModel>();
 
@@ -35,22 +54,27 @@ namespace BookLoan.Services
             {
                 BookLoan.Models.BookStatusViewModel bsvm = await _loanService.GetBookLoanStatus(book.ID);
                 //BookLoan.Models.BookViewModel bvm = await _bookService.GetBook(book.ID);
-                loanstats.Add(new Models.BookStatusViewModel()
+                if (((currentuser != null) && (bsvm.Borrower == currentuser))
+                        || (currentuser == null))
                 {
-                    ID = book.ID,
-                    Author = book.Author,
-                    Title = book.Title,
-                    Genre = book.Genre,
-                    ISBN = book.ISBN,
-                    Edition = book.Edition,
-                    Location = book.Location,
-                    YearPublished = book.YearPublished,
-                    OnShelf = bsvm.OnShelf,
-                    DateLoaned = bsvm.DateLoaned,
-                    DateReturn = bsvm.DateReturn,
-                    DateDue = bsvm.DateDue,
-                    Status = bsvm.Status
-                });
+                    loanstats.Add(new Models.BookStatusViewModel()
+                    {
+                        ID = book.ID,
+                        Author = book.Author,
+                        Title = book.Title,
+                        Genre = book.Genre,
+                        ISBN = book.ISBN,
+                        Edition = book.Edition,
+                        Location = book.Location,
+                        YearPublished = book.YearPublished,
+                        OnShelf = bsvm.OnShelf,
+                        DateLoaned = bsvm.DateLoaned,
+                        DateReturn = bsvm.DateReturn,
+                        DateDue = bsvm.DateDue,
+                        Status = bsvm.Status,
+                        Borrower = bsvm.Borrower
+                    });
+                }
             }
             return loanstats;
         }

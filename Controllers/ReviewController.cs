@@ -4,56 +4,91 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using BookLoan.Models;
 using BookLoan.Data;
 using BookLoan.Services;
 
 namespace BookLoan.Controllers
 {
-    public class ReportController : Controller
+    public class ReviewController : Controller
     {
         ApplicationDbContext _db;
-        IReportService _reportService;
+        ILoanService _loanService;
+        IReviewService _reviewService;
 
-        public ReportController(ApplicationDbContext db, IReportService reportService)
+        public ReviewController(ApplicationDbContext db, 
+            ILoanService loanService,
+            IReviewService reviewService)
         {
             _db = db;
-            _reportService = reportService;
+            _loanService = loanService;
+            _reviewService = reviewService;
         }
-
 
         [HttpGet]
-        public async Task<ActionResult> LoanReport()
+        public async Task<ActionResult> List()
         {
-            return View(await _reportService.OnLoanReport());
+            List<BookLoan.Models.ReportViewModels.LoanedBookReportViewModel> userLoans = 
+                new List<Models.ReportViewModels.LoanedBookReportViewModel>();
+
+            userLoans = await _loanService.GetBooksLoanedByCurrentUser();
+            return View(userLoans);
         }
 
 
+        // GET: Review/Review/5
         [HttpGet]
-        public async Task<ActionResult> MyLoanReport()
+        public async Task<ActionResult> Review(int id)
         {
-            return View(await _reportService.MyOnLoanReport());
+            BookLoan.Models.BookLoanViewModels.LoanedBookViewModel userLoan =
+                new Models.BookLoanViewModels.LoanedBookViewModel();
+
+            BookLoan.Views.Review.ReviewModel reviewModel = new Views.Review.ReviewModel(_db);
+            //reviewModel.ReviewViewModel = 
+            ReviewViewModel reviewViewModel = await _loanService.GetLoanForReview(id);
+            return View(reviewViewModel);
         }
 
 
-        // GET: Report
+        // POST: Review/SaveReview
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Review(ReviewViewModel model)
+        {
+            try
+            {
+                // TODO: Add update logic here
+                await _reviewService.SaveReview(model);
+                return RedirectToAction("List", "Review");
+            }
+            catch (Exception ex)
+            {
+                return View();
+            }
+        }
+
+
+
+
+        // GET: SearchBook
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: Report/Details/5
+        // GET: SearchBook/Details/5
         public ActionResult Details(int id)
         {
             return View();
         }
 
-        // GET: Report/Create
+        // GET: SearchBook/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Report/Create
+        // POST: SearchBook/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(IFormCollection collection)
@@ -70,13 +105,13 @@ namespace BookLoan.Controllers
             }
         }
 
-        // GET: Report/Edit/5
+        // GET: SearchBook/Edit/5
         public ActionResult Edit(int id)
         {
             return View();
         }
 
-        // POST: Report/Edit/5
+        // POST: SearchBook/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, IFormCollection collection)
@@ -93,13 +128,13 @@ namespace BookLoan.Controllers
             }
         }
 
-        // GET: Report/Delete/5
+        // GET: SearchBook/Delete/5
         public ActionResult Delete(int id)
         {
             return View();
         }
 
-        // POST: Report/Delete/5
+        // POST: SearchBook/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)

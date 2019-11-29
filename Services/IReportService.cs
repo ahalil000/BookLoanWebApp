@@ -7,6 +7,7 @@ namespace BookLoan.Services
 {
     public interface IReportService
     {
-        Task<List<BookLoan.Models.BookStatusViewModel>> OnLoanReport();
+        Task<List<BookLoan.Models.BookStatusViewModel>> OnLoanReport(string currentuser = null);
+        Task<List<BookLoan.Models.BookStatusViewModel>> MyOnLoanReport();
     }
 }

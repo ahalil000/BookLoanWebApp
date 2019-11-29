@@ -1,0 +1,70 @@
+﻿@model List<BookLoan.Models.BookStatusViewModel>
+
+<h2>My Books On Loan</h2>
+
+<p>
+    <a asp-page="/MyLoanReport"></a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model[0].Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].Author)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].DateLoaned)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].DateDue)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].DateReturn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].Location)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].Status)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Author)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateLoanedFormattedString)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateDueFormattedString)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateReturnFormattedString)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Location)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    <a asp-area="" asp-controller="Book" asp-action="Details" asp-route-id="@item.ID">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="form-group">
+    <a asp-area="" asp-controller="Home" asp-action="Index">Back to Home</a>
+</div>
