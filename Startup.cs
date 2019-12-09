@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http;
 
+using Microsoft.AspNetCore.Authorization;
+using BookLoan.Authorization;
+
 namespace BookLoan
 {
     public class Startup
@@ -73,11 +76,44 @@ namespace BookLoan
             services.AddTransient<IReportService, ReportService>();
             services.AddTransient<IBookService, BookService>();
             services.AddTransient<IReviewService, ReviewService>();
-            services.AddTransient<IUserRoleService, UserRoleService>();
+            services.AddScoped<IUserRoleService, UserRoleService>();
+            services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddMvc();
+
+
+            // Authorization policies
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("BookReadAccess", policy =>
+                {
+                    policy.AddRequirements(
+                        BookLoanOperations.Read);
+                });
+                options.AddPolicy("BookUpdateAccess", policy =>
+                {
+                    policy.AddRequirements(
+                        BookLoanOperations.Update);
+                });
+                options.AddPolicy("BookCreateAccess", policy =>
+                {
+                    policy.AddRequirements(
+                        BookLoanOperations.Create);
+                });
+                options.AddPolicy("BookLoanAccess", policy =>
+                {
+                    policy.AddRequirements(
+                        BookLoanOperations.Loan);
+                });
+            });
+
+            // Authorization handlers.
+            services.AddSingleton<IAuthorizationHandler, BookReadAccessHandler>();
+            services.AddSingleton<IAuthorizationHandler, BookUpdateAccessHandler>();
+            services.AddSingleton<IAuthorizationHandler, BookCreateAccessHandler>();
+            services.AddSingleton<IAuthorizationHandler, BookLoanAccessHandler>();
 
             //services.AddOptions();
             services.Configure<AppConfiguration>(Configuration.GetSection("AppSettings"));

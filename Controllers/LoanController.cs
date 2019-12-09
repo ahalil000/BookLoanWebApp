@@ -9,22 +9,32 @@ using BookLoan.Data;
 using BookLoan.Models;
 using BookLoan.Views.Loan;
 using BookLoan.Services;
+using BookLoan.Authorization;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace BookLoan.Controllers
 {
     public class LoanController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IAuthorizationService _authorizationService;
+
         ILoanService _loanService;
         IBookService _bookService;
+        IReportService _reportService;
 
         public LoanController(ApplicationDbContext context, 
+            IAuthorizationService authorizationService, 
             IBookService bookService, 
-            ILoanService loanService)
+            ILoanService loanService,
+            IReportService reportService)
         {
             _context = context;
+            _authorizationService = authorizationService;
             _bookService = bookService;
             _loanService = loanService;
+            _reportService = reportService;
         }
 
         // GET: LoanViewModels
@@ -68,12 +78,20 @@ namespace BookLoan.Controllers
         // GET: LoanViewModels/Create
         public async Task<IActionResult> Create(int id)
         {
-            //ViewData["BookID"] = new SelectList(_context.Books, "ID", "Author");
-            LoanViewModel lvm = _loanService.CreateNewBookLoan(id);
-            lvm.LoanedBy = User.Identity.Name;
-            BookLoan.Views.Loan.CreateModel createModel = new CreateModel(_context);
-            createModel.LoanViewModel = lvm;
-            return View(createModel);
+            // use imperative authorisation to check no outstanding overdue loans.
+            if ((await _authorizationService
+     .AuthorizeAsync(User, _reportService, new BookLoanRequirement())).Succeeded)
+            {
+                LoanViewModel lvm = _loanService.CreateNewBookLoan(id);
+                lvm.LoanedBy = User.Identity.Name;
+                BookLoan.Views.Loan.CreateModel createModel = new CreateModel(_context);
+                createModel.LoanViewModel = lvm;
+                return View(createModel);
+            }
+            else
+            {
+                return new ChallengeResult();
+            }
         }
 
         // GET: LoanViewModels/Return
@@ -134,7 +152,7 @@ namespace BookLoan.Controllers
         public async Task<IActionResult> Create([Bind("ID,LoanedBy,DateLoaned,DateReturn,OnShelf,DateCreated,DateDue,DateUpdated,BookID")] LoanViewModel loanViewModel)
         {
             if (ModelState.IsValid)
-            {
+            {             
                 await _loanService.SaveLoan(loanViewModel);
                 //_context.Add(loanViewModel);
                 //await _context.SaveChangesAsync();

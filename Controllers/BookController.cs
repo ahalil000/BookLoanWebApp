@@ -12,8 +12,13 @@ using Microsoft.EntityFrameworkCore;
 using BookLoan.Views.Book;
 using BookLoan.Services;
 
+using Microsoft.AspNetCore.Authorization;
+//using Microsoft.AspNetCore.Mvc.Authorization;
+//using Microsoft.AspNetCore.Mvc.Filters;
+
 namespace BookLoan.Controllers
 {
+    [Route("api/[controller]")]
     public class BookController : Controller
     {
         ApplicationDbContext _db;
@@ -34,6 +39,8 @@ namespace BookLoan.Controllers
         }
 
         // GET: Book/Details/5
+        [Route("Details/{id}")]
+        [Authorize(Policy = "BookReadAccess")]
         public async Task<ActionResult> Details(int id)
         {
             if (id == 0)
@@ -70,6 +77,7 @@ namespace BookLoan.Controllers
         }
 
         // GET: Book/Create
+        [Authorize(Policy = "BookCreateAccess")]
         public ActionResult Create()
         {
             return View();
@@ -121,6 +129,8 @@ namespace BookLoan.Controllers
         }
 
         // GET: Book/Edit/5
+        [Route("Edit/{id}")]        
+        [Authorize(Policy = "BookUpdateAccess")]
         public async Task<ActionResult> Edit(int id)
         {
             if (id == 0)
@@ -132,14 +142,6 @@ namespace BookLoan.Controllers
             //var book = await _db.Books.Where(a => a.ID == id).SingleOrDefaultAsync();
             if (bvm != null)
             {
-                //bvm.ID = book.ID;
-                //bvm.Title = book.Title;
-                //bvm.Author = book.Author;
-                //bvm.Genre = book.Genre;
-                //bvm.Location = book.Location;
-                //bvm.YearPublished = book.YearPublished;
-                //bvm.Edition = book.Edition;
-                //bvm.ISBN = book.ISBN;
                 bvm.DateUpdated = DateTime.Now;
             }
             BookLoan.Views.Book.EditModel editModel = new EditModel(_db);
@@ -205,21 +207,38 @@ namespace BookLoan.Controllers
         }
 
         // GET: Book/Delete/5
-        public ActionResult Delete(int id)
+        [Route("Delete/{id}")]
+        public async Task<ActionResult> Delete(int id)
         {
-            return View();
+            if (id == 0)
+            {
+                return null;
+            }
+            BookViewModel bvm = new BookViewModel();
+            bvm = await _bookService.GetBook(id);
+            if (bvm != null)
+            {
+                bvm.DateUpdated = DateTime.Now;
+            }
+            BookLoan.Views.Book.DeleteModel deleteModel = new DeleteModel(_db);
+            deleteModel.BookViewModel = bvm;
+
+            return View(deleteModel.BookViewModel);
         }
 
         // POST: Book/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        [Route("Delete/{id}")]
+        public ActionResult Delete(int id, BookLoan.Models.BookViewModel collection) 
+            // IFormCollection collection)
         {
             try
             {
                 // TODO: Add delete logic here
 
-                return RedirectToAction(nameof(Index));
+
+                return RedirectToAction("Index", "Home");
             }
             catch
             {

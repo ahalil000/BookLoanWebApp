@@ -11,7 +11,7 @@ namespace BookLoan.Services
         Task<List<string>> GetUserRoles(string userName);
         Task<bool> IsUserInRole(string userName, string role);
         Task AddUserToRole(string userName, string role);
-        Task<List<ApplicationUser>> GetUsers();
+        Task<List<BookLoan.Models.ManageUserViewModels.UserViewModel>> GetUsers();
         Task<BookLoan.Models.ManageUserViewModels.UserRoleViewModel> GetUserRoleDetailsById(string userId);
         Task<BookLoan.Models.ManageUserViewModels.UserRoleViewModel> GetUserRoleDetails(string userName);
         Task<BookLoan.Models.ManageUserViewModels.UserRoleConfirmAction> GetUserRoleAction(string userId, string action, string role);

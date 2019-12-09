@@ -28,15 +28,22 @@ namespace BookLoan.Services
         /// </summary>
         /// <param name="userName"></param>
         /// <returns></returns>
-        public async Task<List<ApplicationUser>> GetUsers()
+        public async Task<List<BookLoan.Models.ManageUserViewModels.UserViewModel>> GetUsers()
         {
-            List<ApplicationUser> users = new List<ApplicationUser>();
-            userManager.Users.Where(u => u.UserName != "Admin").ToList().ForEach(async u =>
+            List<BookLoan.Models.ManageUserViewModels.UserViewModel> userViews = new List<Models.ManageUserViewModels.UserViewModel>();
+            userManager.Users.ToList().ForEach(async u =>
             {
-                if (await IsUserInRole(u.UserName, "Admin") == false)
-                    users.Add(u);
+                Task<bool> isInRoleResult = userManager.IsInRoleAsync(u, "Admin");
+                bool isInRole = isInRoleResult.GetAwaiter().GetResult();
+                if (isInRole == false)
+                    userViews.Add(new Models.ManageUserViewModels.UserViewModel()
+                    {
+                        ID = u.Id,
+                        UserName = u.UserName,
+                        Email = u.Email
+                    });
             });
-            return users;
+            return userViews;
         }
 
 

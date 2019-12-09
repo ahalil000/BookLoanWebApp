@@ -13,12 +13,13 @@ namespace BookLoan.Controllers
 {
     public class ManageUserController : Controller
     {
-        ApplicationDbContext _db;
+        //ApplicationDbContext _db;
         IUserRoleService _userRoleService;
 
-        public ManageUserController(ApplicationDbContext db, IUserRoleService userRoleService)
+        //public ManageUserController(ApplicationDbContext db, IUserRoleService userRoleService)
+        public ManageUserController(IUserRoleService userRoleService)
         {
-            _db = db;
+            //_db = db;
             _userRoleService = userRoleService;
         }
 
@@ -78,13 +79,17 @@ namespace BookLoan.Controllers
             try
             {
                 // TODO: Add update logic here
-                await _userRoleService.AddUserToRole(model.LoginName, model.SelectedRole);
-                //return RedirectToAction("Index", "Home");
-                return RedirectToAction("UserRoleEdit", new { id = model.UserID });
+                if (Request.Form["Confirm"].ToString() == "Confirm")
+                {
+                    await _userRoleService.AddUserToRole(model.LoginName, model.SelectedRole);
+                    return RedirectToAction("UserRoleEdit", "ManageUser", new { id = model.UserID });
+                }
+                else
+                    return RedirectToAction("UserList", "ManageUser");
             }
             catch
             {
-                return View();
+                return RedirectToAction("Index", "Home");
             }
         }
 
@@ -97,12 +102,17 @@ namespace BookLoan.Controllers
             try
             {
                 // TODO: Add update logic here
-                await _userRoleService.AddUserToRole(model.LoginName, model.SelectedRole);
-                return RedirectToAction("UserRoleEdit", new { id = model.UserID });
+                if (Request.Form["Confirm"].ToString() == "Confirm")
+                {
+                    await _userRoleService.AddUserToRole(model.LoginName, model.SelectedRole);
+                    return RedirectToAction("UserRoleEdit", new { id = model.UserID });
+                }
+                else
+                    return RedirectToAction("UserList", "ManageUser");
             }
             catch
             {
-                return View();
+                return RedirectToAction("Index", "Home");
             }
         }
 
