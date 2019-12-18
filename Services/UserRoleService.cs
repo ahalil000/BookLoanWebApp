@@ -163,6 +163,39 @@ namespace BookLoan.Services
 
 
         /// <summary>
+        /// DeleteUserFromRole
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        public async Task DeleteUserFromRole(string userName, string role)
+        {
+            var roleManager = new RoleStore<IdentityRole>(db);
+            var user = await userManager.FindByEmailAsync(userName);
+            bool isInRole = await this.IsUserInRole(userName, role); // await userManager.IsInRoleAsync(user, role);
+            if (isInRole)
+            {
+                if ((role == "Member") || (role == "Manager"))
+                {
+                    var memberRole = roleManager.FindByNameAsync(role);
+                    var memberUser = userManager.FindByEmailAsync(userName);
+                    if (memberRole != null && memberUser != null)
+                    {
+                        var currUserRole = db.UserRoles.Where(
+                                    r => r.UserId == memberUser.Result.Id &&
+                                         r.RoleId == memberRole.Result.Id).SingleOrDefault();
+                        if (currUserRole != null)
+                        {
+                            db.UserRoles.Remove(currUserRole);
+                            await db.SaveChangesAsync();
+                        }
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
         /// GetUserRoleAction
         /// </summary>
         /// <param name="userId"></param>
@@ -181,7 +214,5 @@ namespace BookLoan.Services
                 UserID = user.Id
             };
         }
-
-
     }
 }

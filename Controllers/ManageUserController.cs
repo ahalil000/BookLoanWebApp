@@ -31,7 +31,7 @@ namespace BookLoan.Controllers
         }
 
         // GET: ManageUsers/Users
-        [HttpGet]
+        [HttpGet("api/[controller]/UserList")]
         public async Task<ActionResult> UserList()
         {
             return View(await _userRoleService.GetUsers());
@@ -39,7 +39,7 @@ namespace BookLoan.Controllers
 
 
         // GET: ManageUsers/UserRoleEdit/5
-        [HttpGet]
+        [HttpGet("api/[controller]/UserRoleEdit/{id}")]
         public async Task<ActionResult> UserRoleEdit(string id)
         {
             var userrole = await _userRoleService.GetUserRoleDetailsById(id);
@@ -53,7 +53,7 @@ namespace BookLoan.Controllers
         /// <param name="id"></param>
         /// <param name="role"></param>
         /// <returns></returns>
-        [HttpGet("AddRole/{id}/{role}")]
+        [HttpGet("api/[controller]/AddRole/{id}/{role}")]
         public async Task<ActionResult> AddRole(string id, string role)
         {
             var userrole = await _userRoleService.GetUserRoleAction(id, "Add", role);
@@ -67,7 +67,7 @@ namespace BookLoan.Controllers
         /// <param name="id"></param>
         /// <param name="role"></param>
         /// <returns></returns>
-        [HttpGet("DeleteRole/{id}/{role}")]
+        [HttpGet("api/[controller]/DeleteRole/{id}/{role}")]
         public async Task<ActionResult> DeleteRole(string id, string role)
         {
             var userrole = await _userRoleService.GetUserRoleAction(id, "Delete", role);
@@ -77,8 +77,8 @@ namespace BookLoan.Controllers
 
 
         // POST: ManageUsers/AddRole/5
-        [HttpPost]
         [ValidateAntiForgeryToken]
+        [HttpPost("api/[controller]/AddRole/{UserID}/{SelectedRole}")]
         public async Task<ActionResult> AddRole(Models.ManageUserViewModels.UserRoleConfirmAction model)
         {
             try
@@ -100,8 +100,8 @@ namespace BookLoan.Controllers
 
 
         // POST: ManageUsers/DeleteRole/5
-        [HttpPost]
         [ValidateAntiForgeryToken]
+        [HttpPost("api/[controller]/DeleteRole/{UserID}/{SelectedRole}")]
         public async Task<ActionResult> DeleteRole(Models.ManageUserViewModels.UserRoleConfirmAction model)
         {
             try
@@ -109,7 +109,7 @@ namespace BookLoan.Controllers
                 // TODO: Add update logic here
                 if (Request.Form["Confirm"].ToString() == "Confirm")
                 {
-                    await _userRoleService.AddUserToRole(model.LoginName, model.SelectedRole);
+                    await _userRoleService.DeleteUserFromRole(model.LoginName, model.SelectedRole);
                     return RedirectToAction("UserRoleEdit", new { id = model.UserID });
                 }
                 else
@@ -124,15 +124,15 @@ namespace BookLoan.Controllers
 
 
         // GET: ManageUsers/Create
-        [HttpGet]
+        [HttpGet("api/[controller]/Create")]
         public ActionResult Create()
         {
             return View();
         }
 
         // POST: ManageUsers/Create
-        [HttpPost]
         [ValidateAntiForgeryToken]
+        [HttpPost("api/[controller]/Create")]
         public ActionResult Create(IFormCollection collection)
         {
             try
@@ -148,15 +148,15 @@ namespace BookLoan.Controllers
         }
 
         // GET: ManageUsers/Edit/5
-        [HttpGet]
+        [HttpGet("api/[controller]/Edit/{id}")]
         public ActionResult Edit(int id)
         {
             return View();
         }
 
         // POST: ManageUsers/Edit/5
-        [HttpPost]
         [ValidateAntiForgeryToken]
+        [HttpPost("api/[controller]/Edit/{id}")]
         public ActionResult Edit(int id, IFormCollection collection)
         {
             try
@@ -171,16 +171,16 @@ namespace BookLoan.Controllers
             }
         }
 
-        // GET: ManageUsers/Delete/5
-        [HttpGet]
+        // GET: ManageUsers/Delete/5        
+        [HttpGet("api/[controller]/Delete/{id}")]
         public ActionResult Delete(int id)
         {
             return View();
         }
 
         // POST: ManageUsers/Delete/5
-        [HttpPost]
         [ValidateAntiForgeryToken]
+        [HttpPost("api/[controller]/Delete/{id}")]
         public ActionResult Delete(int id, IFormCollection collection)
         {
             try
