@@ -29,18 +29,21 @@ namespace BookLoan.Controllers
 
 
         // GET: Report
+        [HttpGet]
         public ActionResult Index()
         {
             return View();
         }
 
         // GET: Report/Details/5
+        [HttpGet]
         public ActionResult Details(int id)
         {
             return View();
         }
 
         // GET: Report/Create
+        [HttpGet]
         public ActionResult Create()
         {
             return View();
@@ -64,6 +67,7 @@ namespace BookLoan.Controllers
         }
 
         // GET: Report/Edit/5
+        [HttpGet]
         public ActionResult Edit(int id)
         {
             return View();
@@ -87,6 +91,7 @@ namespace BookLoan.Controllers
         }
 
         // GET: Report/Delete/5
+        [HttpGet]
         public ActionResult Delete(int id)
         {
             return View();

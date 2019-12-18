@@ -9,5 +9,6 @@ namespace BookLoan.Services
     {
         Task<List<BookLoan.Models.BookStatusViewModel>> OnLoanReport(string currentuser = null);
         Task<List<BookLoan.Models.BookStatusViewModel>> MyOnLoanReport();
+        Task<bool> CurrentUserAnyOverdueLoans();
     }
 }

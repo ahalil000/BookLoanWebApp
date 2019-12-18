@@ -61,7 +61,8 @@
                         @Html.DisplayFor(modelItem => item.Rating)
                     </td>*@
                 <td>
-                    <a asp-area="" asp-controller="Book" asp-action="Details" asp-route-id="@item.ID">Details</a>
+                    @*<a asp-area="" asp-controller="Book" asp-action="Details" asp-route-id="@item.ID">Details</a>*@
+                    <a asp-area="" asp-controller="Loan" asp-action="BookDetails" asp-route-id="@item.ID">Details</a>
                 </td>
                 <td>
                     @if (item.WasBookReviewed)

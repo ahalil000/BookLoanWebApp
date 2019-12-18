@@ -2,19 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookLoan.Models
+namespace BookLoan.Models.ManageUserViewModels
 {
-    // Add profile data for application users by adding properties to the ApplicationUser class
-    public class ApplicationUser : IdentityUser
-    {        
+    public class UserViewModel
+    {
+        public string ID { get; set; }
+
+        public string UserName { get; set; }
+
+        public string Email { get; set; }
+
+        // custom personal fields
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
 
+        [DataType(DataType.Date)]
         public DateTime DOB { get; set; }
     }
 }

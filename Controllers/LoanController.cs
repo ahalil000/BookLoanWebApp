@@ -9,25 +9,36 @@ using BookLoan.Data;
 using BookLoan.Models;
 using BookLoan.Views.Loan;
 using BookLoan.Services;
+using BookLoan.Authorization;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace BookLoan.Controllers
 {
     public class LoanController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IAuthorizationService _authorizationService;
+
         ILoanService _loanService;
         IBookService _bookService;
+        IReportService _reportService;
 
         public LoanController(ApplicationDbContext context, 
+            IAuthorizationService authorizationService, 
             IBookService bookService, 
-            ILoanService loanService)
+            ILoanService loanService,
+            IReportService reportService)
         {
             _context = context;
+            _authorizationService = authorizationService;
             _bookService = bookService;
             _loanService = loanService;
+            _reportService = reportService;
         }
 
         // GET: LoanViewModels
+        [HttpGet("api/[controller]/Index")]
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Loans.Include(l => l.Book);
@@ -35,6 +46,7 @@ namespace BookLoan.Controllers
         }
 
         // GET: LoanViewModels/Details/5
+        [HttpGet("api/[controller]/Details/{id}")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -65,18 +77,60 @@ namespace BookLoan.Controllers
         }
 
 
+        [HttpGet("api/[controller]/BookDetails/{id}")]
+        public async Task<IActionResult> BookDetails(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            LoanViewModel lvm = new LoanViewModel();
+            lvm = await _loanService.GetLoan((int)id);
+
+            if (lvm == null)
+            {
+                return NotFound();
+            }
+
+            // Return book details of id.
+            return RedirectToAction("Details", "Book", new { id = lvm.BookID });
+        }
+
+
         // GET: LoanViewModels/Create
+        [HttpGet("api/[controller]/Create/{id}")]
         public async Task<IActionResult> Create(int id)
         {
-            //ViewData["BookID"] = new SelectList(_context.Books, "ID", "Author");
-            LoanViewModel lvm = _loanService.CreateNewBookLoan(id);
-            lvm.LoanedBy = User.Identity.Name;
-            BookLoan.Views.Loan.CreateModel createModel = new CreateModel(_context);
-            createModel.LoanViewModel = lvm;
-            return View(createModel);
+            // use imperative authorisation to check no outstanding overdue loans.
+            if ((await _authorizationService
+     .AuthorizeAsync(User, _reportService, new BookLoanRequirement())).Succeeded)
+            {
+                BookViewModel bookView = await _bookService.GetBook(id);
+
+                if ((await _authorizationService
+         .AuthorizeAsync(User, bookView, new MinimumAgeRequirement(18))).Succeeded)
+                {
+                    LoanViewModel lvm = _loanService.CreateNewBookLoan(id);
+                    lvm.LoanedBy = User.Identity.Name;
+                    BookLoan.Views.Loan.CreateModel createModel = new CreateModel(_context);
+                    createModel.LoanViewModel = lvm;
+                    createModel.LoanViewModel.Book = bookView;
+                    return View(createModel);
+                }
+                else
+                {
+                    return new ChallengeResult(); 
+                }
+            }
+            else
+            {
+                return new ChallengeResult();
+            }
         }
 
         // GET: LoanViewModels/Return
+        [HttpGet("api/[controller]/Return/{id}")]
         public async Task<IActionResult> Return(int id)
         {
             //LoanViewModel lvm = new LoanViewModel();
@@ -129,12 +183,12 @@ namespace BookLoan.Controllers
         // POST: LoanViewModels/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("api/[controller]/Create/{ID}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,LoanedBy,DateLoaned,DateReturn,OnShelf,DateCreated,DateDue,DateUpdated,BookID")] LoanViewModel loanViewModel)
         {
             if (ModelState.IsValid)
-            {
+            {             
                 await _loanService.SaveLoan(loanViewModel);
                 //_context.Add(loanViewModel);
                 //await _context.SaveChangesAsync();
@@ -148,7 +202,7 @@ namespace BookLoan.Controllers
         // POST: LoanViewModels/Return
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("api/[controller]/Return/{ID}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Return([Bind("ID,LoanedBy,DateLoaned,DateReturn,DateDue,OnShelf,DateCreated,DateUpdated,BookID")] LoanViewModel loanViewModel)
         {
@@ -181,6 +235,7 @@ namespace BookLoan.Controllers
 
 
         // GET: LoanViewModels/Edit/5
+        [HttpGet("api/[controller]/Edit/{id}")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -201,7 +256,7 @@ namespace BookLoan.Controllers
         // POST: LoanViewModels/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("api/[controller]/Edit/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,LoanedBy,DateLoaned,DateReturn,OnShelf,DateCreated,DateUpdated,BookID")] LoanViewModel loanViewModel)
         {
@@ -237,6 +292,7 @@ namespace BookLoan.Controllers
         }
 
         // GET: LoanViewModels/Delete/5
+        [HttpGet("api/[controller]/Delete/{id}")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -256,7 +312,8 @@ namespace BookLoan.Controllers
         }
 
         // POST: LoanViewModels/Delete/5
-        [HttpPost, ActionName("Delete")]
+        //[HttpPost, ActionName("Delete")]
+        [HttpPost("api/[controller]/Delete/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
@@ -266,6 +323,7 @@ namespace BookLoan.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [NonAction]
         private bool LoanViewModelExists(int id)
         {
             return _context.Loans.Any(e => e.ID == id);

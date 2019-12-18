@@ -7,7 +7,7 @@
 
 
 
-@model List<BookLoan.Models.ApplicationUser>
+@model List<BookLoan.Models.ManageUserViewModels.UserViewModel>
 
 <h2>Member Users</h2>
 
@@ -38,7 +38,7 @@
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
             <td>
-                <a asp-area="" asp-controller="ManageUser" asp-action="UserRoleEdit" asp-route-id="@item.Id">Edit User Role</a>
+                <a asp-area="" asp-controller="ManageUser" asp-action="UserRoleEdit" asp-route-id="@item.ID">Edit User Role</a>
             </td>
         </tr>
         }

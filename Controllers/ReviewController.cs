@@ -25,7 +25,7 @@ namespace BookLoan.Controllers
             _reviewService = reviewService;
         }
 
-        [HttpGet]
+        [HttpGet("api/[controller]/List")]
         public async Task<ActionResult> List()
         {
             List<BookLoan.Models.ReportViewModels.LoanedBookReportViewModel> userLoans = 
@@ -37,7 +37,7 @@ namespace BookLoan.Controllers
 
 
         // GET: Review/Review/5
-        [HttpGet]
+        [HttpGet("api/[controller]/Review/{id}")]
         public async Task<ActionResult> Review(int id)
         {
             BookLoan.Models.BookLoanViewModels.LoanedBookViewModel userLoan =
@@ -51,7 +51,7 @@ namespace BookLoan.Controllers
 
 
         // POST: Review/SaveReview
-        [HttpPost]
+        [HttpPost("api/[controller]/Review")]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Review(ReviewViewModel model)
         {
@@ -68,28 +68,29 @@ namespace BookLoan.Controllers
         }
 
 
-
-
         // GET: SearchBook
+        [HttpGet("api/[controller]/Index")]
         public ActionResult Index()
         {
             return View();
         }
 
         // GET: SearchBook/Details/5
+        [HttpGet("api/[controller]/Details/{id}")]
         public ActionResult Details(int id)
         {
             return View();
         }
 
         // GET: SearchBook/Create
+        [HttpGet("api/[controller]/Create")]
         public ActionResult Create()
         {
             return View();
         }
 
         // POST: SearchBook/Create
-        [HttpPost]
+        [HttpPost("api/[controller]/Create/{ID}")]
         [ValidateAntiForgeryToken]
         public ActionResult Create(IFormCollection collection)
         {
@@ -106,13 +107,14 @@ namespace BookLoan.Controllers
         }
 
         // GET: SearchBook/Edit/5
+        [HttpGet("api/[controller]/Edit/{id}")]
         public ActionResult Edit(int id)
         {
             return View();
         }
 
         // POST: SearchBook/Edit/5
-        [HttpPost]
+        [HttpPost("api/[controller]/Edit/{id}")]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, IFormCollection collection)
         {
@@ -129,20 +131,20 @@ namespace BookLoan.Controllers
         }
 
         // GET: SearchBook/Delete/5
+        [HttpGet("api/[controller]/Delete/{id}")]
         public ActionResult Delete(int id)
         {
             return View();
         }
 
         // POST: SearchBook/Delete/5
-        [HttpPost]
+        [HttpPost("api/[controller]/Delete/{id}")]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
         {
             try
             {
                 // TODO: Add delete logic here
-
                 return RedirectToAction(nameof(Index));
             }
             catch

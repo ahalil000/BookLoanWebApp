@@ -33,10 +33,18 @@ namespace BookLoan.Services
             _context = httpContextAccessor.HttpContext;
         }
 
+        public async Task<bool> CurrentUserAnyOverdueLoans()
+        {
+            string curruser = _context.User.Identity.Name;
+            List<BookLoan.Models.BookStatusViewModel> bookStatusViews =
+                await MyOnLoanReport();
+            return bookStatusViews.Any(a => a.Status == "OVERDUE");
+        }
+
+
         public async Task<List<BookLoan.Models.BookStatusViewModel>> MyOnLoanReport()
         {
-            //var user = await _userManager.GetUserAsync(_context.User);
-            string curruser = _context.User.Identity.Name; // user.UserName;
+            string curruser = _context.User.Identity.Name; 
             return await OnLoanReport(curruser);
         }
 

@@ -1,9 +1,9 @@
 ﻿@page
 @model BookLoan.Views.Book.DetailsModel
 
-@*@{
-    ViewData["Title"] = "Details";
-}*@
+@using BookLoan.Services;
+@inject IUserRoleService UserRoleService
+
 
 <h2>Book Details</h2>
 
@@ -93,6 +93,14 @@
     @if (@Html.ValueFor(model => model.BookStatusViewModel.Status) == "OVERDUE")
     {
         <a asp-area="" asp-controller="Loan" asp-action="Return" asp-route-id="@Html.ValueFor(model => model.BookViewModel.ID)"> | Return Book</a>
+    }
+
+    @if (await UserRoleService.IsUserInRole(User.Identity.Name, "Admin"))
+    {
+
+        {
+            <a asp-area="" asp-controller="Book" asp-action="Delete" asp-route-id="@Html.ValueFor(model => model.BookViewModel.ID)"> | Delete Book</a>
+        }
     }
 
     <div class="form-group">

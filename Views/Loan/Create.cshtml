@@ -18,6 +18,11 @@
             <input type="hidden" asp-for="LoanViewModel.DateCreated" />
 
             <div class="form-group">
+                <label asp-for="LoanViewModel.Book.Title" class="control-label"></label>
+                <input asp-for="LoanViewModel.Book.Title" class="form-control" />
+            </div>
+
+            <div class="form-group">
                 <label asp-for="LoanViewModel.LoanedBy" class="control-label"></label>
                 <input asp-for="LoanViewModel.LoanedBy" class="form-control" />
                 <span asp-validation-for="LoanViewModel.LoanedBy" class="text-danger"></span>
@@ -33,10 +38,10 @@
                 <span asp-validation-for="LoanViewModel.DateDue" class="text-danger"></span>
             </div>
             @*<div class="form-group">
-                <label asp-for="LoanViewModel.DateReturn" class="control-label"></label>
-                <input asp-for="LoanViewModel.DateReturn" class="form-control" />
-                <span asp-validation-for="LoanViewModel.DateReturn" class="text-danger"></span>
-            </div>*@
+            <label asp-for="LoanViewModel.DateReturn" class="control-label"></label>
+            <input asp-for="LoanViewModel.DateReturn" class="form-control" />
+            <span asp-validation-for="LoanViewModel.DateReturn" class="text-danger"></span>
+        </div>*@
             <div class="form-group">
                 <div class="checkbox">
                     <label>

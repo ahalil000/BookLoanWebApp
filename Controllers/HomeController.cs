@@ -16,7 +16,7 @@ namespace BookLoan.Controllers
             return View();
         }
 
-        [Authorize]
+        [HttpGet]
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";
@@ -24,6 +24,7 @@ namespace BookLoan.Controllers
             return View();
         }
 
+        [HttpGet]
         public IActionResult Contact()
         {
             ViewData["Message"] = "Your contact page.";
@@ -31,6 +32,7 @@ namespace BookLoan.Controllers
             return View();
         }
 
+        [HttpGet]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

@@ -221,7 +221,13 @@ namespace BookLoan.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    DOB = model.DOB
+                };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -233,6 +239,16 @@ namespace BookLoan.Controllers
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation("User created a new account with password.");
+
+                    // add additional claims for this new user..
+                    var newClaims = new List<Claim>() {
+                        new Claim(ClaimTypes.GivenName, user.FirstName),
+                        new Claim(ClaimTypes.Surname, user.LastName),
+                        new Claim(ClaimTypes.DateOfBirth, user.DOB.ToShortDateString())
+                    };
+                    await _userManager.AddClaimsAsync(user, newClaims);
+                    _logger.LogInformation("Claims added for user.");
+
                     return RedirectToLocal(returnUrl);
                 }
                 AddErrors(result);

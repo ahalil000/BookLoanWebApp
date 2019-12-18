@@ -21,5 +21,13 @@ namespace BookLoan.Models.ManageViewModels
         public string PhoneNumber { get; set; }
 
         public string StatusMessage { get; set; }
+
+        // custom personal fields
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime DOB { get; set; }
     }
 }

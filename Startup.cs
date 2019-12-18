@@ -13,6 +13,12 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http;
 
+using Microsoft.AspNetCore.Authorization;
+using BookLoan.Authorization;
+
+using Swashbuckle.AspNetCore;
+
+
 namespace BookLoan
 {
     public class Startup
@@ -73,11 +79,55 @@ namespace BookLoan
             services.AddTransient<IReportService, ReportService>();
             services.AddTransient<IBookService, BookService>();
             services.AddTransient<IReviewService, ReviewService>();
-            services.AddTransient<IUserRoleService, UserRoleService>();
+            services.AddScoped<IUserRoleService, UserRoleService>();
+            services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddMvc();
+
+            // Inject ISwaggerProvider with defaulted settings
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "BookLoan API", Version = "v1" });
+            });
+
+            // Authorization policies
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("BookReadAccess", policy =>
+                {
+                    policy.AddRequirements(
+                        BookLoanOperations.Read);
+                });
+                options.AddPolicy("BookUpdateAccess", policy =>
+                {
+                    policy.AddRequirements(
+                        BookLoanOperations.Update);
+                });
+                options.AddPolicy("BookCreateAccess", policy =>
+                {
+                    policy.AddRequirements(
+                        BookLoanOperations.Create);
+                });
+                options.AddPolicy("BookLoanAccess", policy =>
+                {
+                    policy.AddRequirements(
+                        BookLoanOperations.Loan);
+                });
+                options.AddPolicy("BookLoanAgeRestriction", policy =>
+                {
+                    policy.AddRequirements(
+                        new MinimumAgeRequirement(18));
+                });
+            });
+
+            // Authorization handlers.
+            services.AddSingleton<IAuthorizationHandler, BookReadAccessHandler>();
+            services.AddSingleton<IAuthorizationHandler, BookUpdateAccessHandler>();
+            services.AddSingleton<IAuthorizationHandler, BookCreateAccessHandler>();
+            services.AddSingleton<IAuthorizationHandler, BookLoanAccessHandler>();
+            services.AddSingleton<IAuthorizationHandler, BookLoanAgeRestrictionHandler>();
 
             //services.AddOptions();
             services.Configure<AppConfiguration>(Configuration.GetSection("AppSettings"));
@@ -91,16 +141,16 @@ namespace BookLoan
                 app.UseDeveloperExceptionPage();
                 app.UseBrowserLink();
                 app.UseDatabaseErrorPage();
+                app.UseStatusCodePagesWithRedirects("/Common/StatusCode?code={0}");
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Common/Error");
             }
 
             app.UseStaticFiles();
 
             app.UseAuthentication();
-
 
             app.UseMvc(routes =>
             {
@@ -109,6 +159,16 @@ namespace BookLoan
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
+            // Enable middleware to serve generated Swagger as a JSON endpoint
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui assets (HTML, JS, CSS etc.)
+            app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "BookLoan API");
+                    c.RoutePrefix = string.Empty;
+                }
+            );
 
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {

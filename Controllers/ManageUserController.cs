@@ -13,22 +13,25 @@ namespace BookLoan.Controllers
 {
     public class ManageUserController : Controller
     {
-        ApplicationDbContext _db;
+        //ApplicationDbContext _db;
         IUserRoleService _userRoleService;
 
-        public ManageUserController(ApplicationDbContext db, IUserRoleService userRoleService)
+        //public ManageUserController(ApplicationDbContext db, IUserRoleService userRoleService)
+        public ManageUserController(IUserRoleService userRoleService)
         {
-            _db = db;
+            //_db = db;
             _userRoleService = userRoleService;
         }
 
         // GET: ManageUsers
+        [HttpGet]
         public ActionResult Index()
         {
             return View();
         }
 
         // GET: ManageUsers/Users
+        [HttpGet]
         public async Task<ActionResult> UserList()
         {
             return View(await _userRoleService.GetUsers());
@@ -36,6 +39,7 @@ namespace BookLoan.Controllers
 
 
         // GET: ManageUsers/UserRoleEdit/5
+        [HttpGet]
         public async Task<ActionResult> UserRoleEdit(string id)
         {
             var userrole = await _userRoleService.GetUserRoleDetailsById(id);
@@ -49,6 +53,7 @@ namespace BookLoan.Controllers
         /// <param name="id"></param>
         /// <param name="role"></param>
         /// <returns></returns>
+        [HttpGet("AddRole/{id}/{role}")]
         public async Task<ActionResult> AddRole(string id, string role)
         {
             var userrole = await _userRoleService.GetUserRoleAction(id, "Add", role);
@@ -62,6 +67,7 @@ namespace BookLoan.Controllers
         /// <param name="id"></param>
         /// <param name="role"></param>
         /// <returns></returns>
+        [HttpGet("DeleteRole/{id}/{role}")]
         public async Task<ActionResult> DeleteRole(string id, string role)
         {
             var userrole = await _userRoleService.GetUserRoleAction(id, "Delete", role);
@@ -78,13 +84,17 @@ namespace BookLoan.Controllers
             try
             {
                 // TODO: Add update logic here
-                await _userRoleService.AddUserToRole(model.LoginName, model.SelectedRole);
-                //return RedirectToAction("Index", "Home");
-                return RedirectToAction("UserRoleEdit", new { id = model.UserID });
+                if (Request.Form["Confirm"].ToString() == "Confirm")
+                {
+                    await _userRoleService.AddUserToRole(model.LoginName, model.SelectedRole);
+                    return RedirectToAction("UserRoleEdit", "ManageUser", new { id = model.UserID });
+                }
+                else
+                    return RedirectToAction("UserList", "ManageUser");
             }
             catch
             {
-                return View();
+                return RedirectToAction("Index", "Home");
             }
         }
 
@@ -97,18 +107,24 @@ namespace BookLoan.Controllers
             try
             {
                 // TODO: Add update logic here
-                await _userRoleService.AddUserToRole(model.LoginName, model.SelectedRole);
-                return RedirectToAction("UserRoleEdit", new { id = model.UserID });
+                if (Request.Form["Confirm"].ToString() == "Confirm")
+                {
+                    await _userRoleService.AddUserToRole(model.LoginName, model.SelectedRole);
+                    return RedirectToAction("UserRoleEdit", new { id = model.UserID });
+                }
+                else
+                    return RedirectToAction("UserList", "ManageUser");
             }
             catch
             {
-                return View();
+                return RedirectToAction("Index", "Home");
             }
         }
 
 
 
         // GET: ManageUsers/Create
+        [HttpGet]
         public ActionResult Create()
         {
             return View();
@@ -132,6 +148,7 @@ namespace BookLoan.Controllers
         }
 
         // GET: ManageUsers/Edit/5
+        [HttpGet]
         public ActionResult Edit(int id)
         {
             return View();
@@ -155,6 +172,7 @@ namespace BookLoan.Controllers
         }
 
         // GET: ManageUsers/Delete/5
+        [HttpGet]
         public ActionResult Delete(int id)
         {
             return View();

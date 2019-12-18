@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using BookLoan.Models;
 using BookLoan.Models.ManageViewModels;
 using BookLoan.Services;
+using System.Security.Claims;
 
 namespace BookLoan.Controllers
 {
@@ -60,6 +61,9 @@ namespace BookLoan.Controllers
                 Username = user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                DOB = user.DOB,
                 IsEmailConfirmed = user.EmailConfirmed,
                 StatusMessage = StatusMessage
             };
@@ -101,6 +105,113 @@ namespace BookLoan.Controllers
                     throw new ApplicationException($"Unexpected error occurred setting phone number for user with ID '{user.Id}'.");
                 }
             }
+
+            // Flags for updated claims fields.
+            bool bHasFNUpdated = false;
+            bool bHasSNUpdated = false;
+            bool bHasDOBUpdated = false;
+
+            // custom field uodates
+            if (model.FirstName != user.FirstName)
+            {
+                user.FirstName = model.FirstName;
+                bHasFNUpdated = true;
+            }
+
+            if (model.LastName != user.LastName)
+            {
+                user.LastName = model.LastName;
+                bHasSNUpdated = true;
+            }
+
+            if (model.DOB != user.DOB)
+            {
+                user.DOB = model.DOB;
+                bHasDOBUpdated = true;
+            }
+
+            // add/update claims 
+            bool bHasFNClaim = false;
+            bool bHasSNClaim = false;
+            bool bHasDOBClaim = false;
+
+            dynamic existingFNClaim = "";
+            dynamic existingSNClaim = "";
+            dynamic existingDOBClaim = "";
+
+            // check existing claims for user..
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            foreach (Claim claim in userClaims)
+            {
+                if (claim.Type == ClaimTypes.GivenName)
+                {
+                    bHasFNClaim = true;
+                    existingFNClaim = (Claim)claim;
+                }
+                if (claim.Type == ClaimTypes.Surname)
+                {
+                    bHasSNClaim = true;
+                    existingSNClaim = (Claim)claim;
+                }
+                if (claim.Type == ClaimTypes.DateOfBirth)
+                {
+                    bHasDOBClaim = true;
+                    existingDOBClaim = (Claim)claim;
+                }
+            }
+
+            // add or update claims for user..
+            var newFNClaim = new Claim(
+                ClaimTypes.GivenName,
+                user.FirstName
+            );
+            var newSNClaim = new Claim(
+                ClaimTypes.Surname,
+                user.LastName
+            );
+            var newDOBClaim = new Claim(
+                ClaimTypes.DateOfBirth,
+                user.DOB.ToShortDateString()
+            );
+            if (!bHasFNClaim)
+            {
+                await _userManager.AddClaimAsync(user, newFNClaim);
+            }
+            else if (bHasFNUpdated)
+            {
+                if (existingFNClaim.GetType().ToString() == "System.Security.Claims.Claim")
+                {
+                    await _userManager.RemoveClaimAsync(user, existingFNClaim);
+                    await _userManager.AddClaimAsync(user, newFNClaim);
+                }
+            }
+            if (!bHasSNClaim)
+            {
+                await _userManager.AddClaimAsync(user, newSNClaim);
+            }
+            else if (bHasSNUpdated)
+            {
+                if (existingSNClaim.GetType().ToString() == "System.Security.Claims.Claim")
+                {
+                    await _userManager.RemoveClaimAsync(user, existingSNClaim);
+                    await _userManager.AddClaimAsync(user, newSNClaim);
+                }
+            }
+            if (!bHasDOBClaim)
+            {
+                await _userManager.AddClaimAsync(user, newDOBClaim);
+            }
+            else if (bHasDOBUpdated)
+            {
+                if (existingDOBClaim.GetType().ToString() == "System.Security.Claims.Claim")
+                {
+                    await _userManager.RemoveClaimAsync(user, existingDOBClaim);
+                    await _userManager.AddClaimAsync(user, newDOBClaim);
+                }
+            }
+            _logger.LogInformation("Claims added/updated for user.");
+
+            await _userManager.UpdateAsync(user);
 
             StatusMessage = "Your profile has been updated";
             return RedirectToAction(nameof(Index));
