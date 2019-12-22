@@ -33,8 +33,11 @@ namespace BookLoan
 
         public void ConfigureServices(IServiceCollection services)
         {
+            bool isInDockerContainer = (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true");
+            string connStr = isInDockerContainer ? "DOCKERconnstr" : "AppDbContext";
+            // Initialise configuration settings
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("AppDbContext")));
+                options.UseSqlServer(Configuration.GetConnectionString(connStr)));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
