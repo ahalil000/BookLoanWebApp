@@ -41,13 +41,13 @@ namespace BookLoan.Controllers
                 }
                 if (!String.IsNullOrEmpty(SearchString))
                     sm.Book = await _bookService.GetBooksFilter(SearchString); // _db.Books.Where(a => a.Title.Contains(SearchString)).ToList();
-                int i = 1; int j = 0;
-                int k = i / j;
+                //int i = 1; int j = 0;
+                //int k = i / j;
                 return View("SearchResult", sm);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Error running book search filter {searchstring}", SearchString);
+                _logger.LogError(ex, "Error running book search filter {searchstring}", SearchString);
                 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
                 {
                     return RedirectToAction("Error", "Common", new { errorMessage = ex.Message.ToString() } );
