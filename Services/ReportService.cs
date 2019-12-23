@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using BookLoan.Models;
 
 
@@ -16,18 +17,21 @@ namespace BookLoan.Services
     public class ReportService: IReportService
     {
         ApplicationDbContext _db;
+        ILogger _logger;
         ILoanService _loanService;
         IBookService _bookService;
-        UserManager<ApplicationUser> _userManager;
+        //UserManager<ApplicationUser> _userManager;
         HttpContext _context;
 
         public ReportService(ApplicationDbContext db,
             UserManager<ApplicationUser> userManager,
             IHttpContextAccessor httpContextAccessor,
             IBookService bookService, 
-            ILoanService loanService)
+            ILoanService loanService,
+            ILogger<ReportService> logger)
         {
             _db = db;
+            _logger = logger;
             _bookService = bookService;
             _loanService = loanService;
             _context = httpContextAccessor.HttpContext;

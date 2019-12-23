@@ -4,18 +4,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using BookLoan.Data;
 using BookLoan.Domain;
-using BookLoan.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using BookLoan.Models;
 
 namespace BookLoan.Services
 {
     public class BookService: IBookService
     {
         ApplicationDbContext _db;
+        ILogger _logger;
 
-        public BookService(ApplicationDbContext db)
+        public BookService(ApplicationDbContext db, 
+            ILogger<BookService> logger)
         {
             _db = db;
+            _logger = logger;
         }
 
         /// <summary>

@@ -18,6 +18,7 @@ using BookLoan.Authorization;
 
 using Swashbuckle.AspNetCore;
 
+using Microsoft.Extensions.Logging;
 
 namespace BookLoan
 {
@@ -137,10 +138,11 @@ namespace BookLoan
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogger<Startup> logger)
         {
             if (env.IsDevelopment())
             {
+                logger.LogInformation("Application starting in development mode.");
                 app.UseDeveloperExceptionPage();
                 app.UseBrowserLink();
                 app.UseDatabaseErrorPage();

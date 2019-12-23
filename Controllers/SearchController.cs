@@ -7,17 +7,21 @@ using Microsoft.AspNetCore.Mvc;
 using BookLoan.Models;
 using BookLoan.Data;
 using BookLoan.Services;
+using Microsoft.Extensions.Logging;
+
 
 namespace BookLoan.Controllers
 {
     public class SearchController : Controller
     {
         ApplicationDbContext _db;
+        ILogger _logger;
         IBookService _bookService;
 
-        public SearchController(ApplicationDbContext db, IBookService bookService)
+        public SearchController(ApplicationDbContext db, IBookService bookService, ILogger<BookController> logger)
         {
             _db = db;
+            _logger = logger;
             _bookService = bookService;
         }
 
@@ -26,7 +30,7 @@ namespace BookLoan.Controllers
         {
             try
             {
-
+                _logger.LogInformation("Opening Search Screen ..");
                 SearchBookViewModel sm = new SearchBookViewModel();
 
                 if (String.IsNullOrEmpty(SearchString))
@@ -37,11 +41,13 @@ namespace BookLoan.Controllers
                 }
                 if (!String.IsNullOrEmpty(SearchString))
                     sm.Book = await _bookService.GetBooksFilter(SearchString); // _db.Books.Where(a => a.Title.Contains(SearchString)).ToList();
-
+                int i = 1; int j = 0;
+                int k = i / j;
                 return View("SearchResult", sm);
             }
             catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Error running book search filter {searchstring}", SearchString);
                 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
                 {
                     return RedirectToAction("Error", "Common", new { errorMessage = ex.Message.ToString() } );

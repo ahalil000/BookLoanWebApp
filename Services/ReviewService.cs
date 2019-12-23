@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+
 using BookLoan.Models;
 
 
@@ -16,13 +18,17 @@ namespace BookLoan.Services
     public class ReviewService: IReviewService
     {
         ApplicationDbContext _db;
+        ILogger _logger;
         IBookService _bookService;
 
         public ReviewService(ApplicationDbContext db,
-            IBookService bookService)
+            IBookService bookService,
+            ILogger<ReviewService> logger)
         {
             _db = db;
+            _logger = logger;
             _bookService = bookService;
+
         }
 
 

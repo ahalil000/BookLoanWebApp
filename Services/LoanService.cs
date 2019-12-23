@@ -8,15 +8,17 @@ using BookLoan.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using BookLoan.Models;
 using BookLoan.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using BookLoan.Models;
 
 namespace BookLoan.Services
 {
     public class LoanService: ILoanService
     {
         ApplicationDbContext _db;
+        ILogger _logger;
         IBookService _bookService;
         IReviewService _reviewService;
         UserManager<ApplicationUser> _userManager;
@@ -26,9 +28,11 @@ namespace BookLoan.Services
                 UserManager<ApplicationUser> userManager, 
                 IHttpContextAccessor httpContextAccessor,               
                 IBookService bookService,
-                IReviewService reviewService)
+                IReviewService reviewService,
+                ILogger<LoanService> logger)
         {
             _db = db;
+            _logger = logger;
             _userManager = userManager;
             _context = httpContextAccessor.HttpContext;
             _bookService = bookService;
